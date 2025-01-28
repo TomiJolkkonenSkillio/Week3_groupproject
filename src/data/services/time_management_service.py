@@ -8,7 +8,18 @@ def get_all_working_hours():
         with psycopg2.connect(**config()) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM working_hours")
-                return cur.fetchall()
+                rows = cur.fetchall()
+                result = []
+                for row in rows:
+                    result.append({
+                        "id": row[0],
+                        "start_time": row[1],
+                        "end_time": row[2],
+                        "lunch_break": str(row[3]) if row[3] else None,
+                        "consultant_name": row[4],
+                        "customer_name": row[5]
+                    })
+                return result
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 
@@ -18,7 +29,15 @@ def get_working_hours_by_id(record_id: int):
         with psycopg2.connect(**config()) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM working_hours WHERE id = %s", (record_id,))
-                return cur.fetchone()
+                row = cur.fetchone()
+                return {
+                    "id": row[0],
+                    "start_time": row[1],
+                    "end_time": row[2],
+                    "lunch_break": str(row[3]) if row[3] else None,
+                    "consultant_name": row[4],
+                    "customer_name": row[5]
+                }
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 

@@ -6,7 +6,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Register blueprints
-app.register_blueprint(time_management_api, url_prefix="/reporting")
+app.register_blueprint(time_management_api, url_prefix="/time_management")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5000)

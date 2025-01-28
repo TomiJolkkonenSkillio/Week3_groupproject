@@ -24,5 +24,5 @@ execute function set_end_time();
 
 select * from working_hours;
 
-insert into working_hours (start_time, lunch_break, consultant_name, customer_name) values ('2021-01-01 08:00:00', '30 minutes', 'John Doe', 'ACME');
+insert into working_hours (start_time, consultant_name, customer_name) values ('2021-01-01 08:00:00', 'John Joku', 'ACME');
 insert into working_hours (start_time, end_time, lunch_break, consultant_name, customer_name) values ('2021-01-01 08:00:00', '2021-01-01 12:15:00', '30 minutes', 'Mary Doe', 'ACME');
