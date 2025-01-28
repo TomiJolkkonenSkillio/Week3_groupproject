@@ -81,3 +81,6 @@ def delete_working_hours(record_id: int):
                 cur.execute("DELETE FROM working_hours WHERE id = %s", (record_id,))
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+
+if __name__ == '__main__':
+    print(get_all_working_hours())
