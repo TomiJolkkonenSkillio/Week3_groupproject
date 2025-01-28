@@ -1,0 +1,19 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "previewLimit": 50,
+            "server": "miska-tomi-server.postgres.database.azure.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "azure_connection",
+            "database": "working_hours",
+            "username": "miskatomi",
+            "password": "M15kAT0mI!!"
+        }
+    ]
+}
