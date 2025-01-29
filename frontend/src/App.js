@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   const [consultantName, setConsultantName] = useState("");
@@ -46,84 +47,79 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">Consultant Time Management</h1>
+    <div className="container py-5">
+      <h1 className="text-center mb-4">Consultant Time Management</h1>
 
-      <div className="mb-4">
-        <label className="block mb-2 font-medium">Consultant Name</label>
-        <input
-          type="text"
-          value={consultantName}
-          onChange={(e) => setConsultantName(e.target.value)}
-          className="p-2 border rounded w-64"
-        />
-      </div>
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="mb-3">
+            <label className="form-label">Consultant Name</label>
+            <input
+              type="text"
+              value={consultantName}
+              onChange={(e) => setConsultantName(e.target.value)}
+              className="form-control"
+            />
+          </div>
 
-      <div className="mb-4">
-        <label className="block mb-2 font-medium">Customer Name</label>
-        <input
-          type="text"
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          className="p-2 border rounded w-64"
-        />
-      </div>
+          <div className="mb-3">
+            <label className="form-label">Customer Name</label>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              className="form-control"
+            />
+          </div>
 
-      <div className="mb-4">
-        <label className="block mb-2 font-medium">Start Time</label>
-        <input
-          type="datetime-local"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="p-2 border rounded w-64"
-        />
-      </div>
+          <div className="mb-3">
+            <label className="form-label">Start Time</label>
+            <input
+              type="datetime-local"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="form-control"
+            />
+          </div>
 
-      <div className="mb-4">
-        <label className="block mb-2 font-medium">End Time</label>
-        <input
-          type="datetime-local"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className="p-2 border rounded w-64"
-        />
-      </div>
+          <div className="mb-3">
+            <label className="form-label">End Time</label>
+            <input
+              type="datetime-local"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="form-control"
+            />
+          </div>
 
-      <div className="mb-4">
-        <label className="block mb-2 font-medium">Lunch Break (in minutes)</label>
-        <input
-          type="number"
-          value={lunchBreak}
-          onChange={(e) => setLunchBreak(e.target.value)}
-          className="p-2 border rounded w-64"
-        />
-      </div>
+          <div className="mb-3">
+            <label className="form-label">Lunch Break (in minutes)</label>
+            <input
+              type="number"
+              value={lunchBreak}
+              onChange={(e) => setLunchBreak(e.target.value)}
+              className="form-control"
+            />
+          </div>
 
-      <div className="flex space-x-4">
-        <button
-          onClick={handleAddHours}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Add Hours
-        </button>
-        <button
-          onClick={handleGetDailyReport}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Get Daily Report
-        </button>
-        <button
-          onClick={handleGetWeeklyReport}
-          className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-        >
-          Get Weekly Report
-        </button>
+          <div className="d-flex justify-content-between">
+            <button className="btn btn-primary" onClick={handleAddHours}>
+              Add Hours
+            </button>
+            <button className="btn btn-success" onClick={handleGetDailyReport}>
+              Get Daily Report
+            </button>
+            <button className="btn btn-warning" onClick={handleGetWeeklyReport}>
+              Get Weekly Report
+            </button>
+          </div>
+        </div>
       </div>
 
       {report && (
-        <div className="mt-6 p-4 bg-white rounded shadow-md w-3/4">
-          <h2 className="text-xl font-bold mb-2">Report</h2>
-          <pre className="bg-gray-100 p-2 rounded">{JSON.stringify(report, null, 2)}</pre>
+        <div className="mt-4 p-3 border rounded bg-light">
+          <h2 className="text-center">Report</h2>
+          <pre className="bg-white p-2">{JSON.stringify(report, null, 2)}</pre>
         </div>
       )}
     </div>
