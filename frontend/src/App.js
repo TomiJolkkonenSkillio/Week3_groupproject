@@ -12,7 +12,7 @@ function App() {
 
   const handleAddHours = async () => {
     try {
-      await axios.post("http://localhost:5000/time_management/add_hours", {
+      await axios.post("http://localhost:5000/time_management/", {
         consultant_name: consultantName,
         customer_name: customerName,
         start_time: startTime,
@@ -28,7 +28,7 @@ function App() {
 
   const handleGetDailyReport = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/generate_report/daily");
+      const response = await axios.get("http://localhost:5000/generate_report/");
       setReport(response.data);
     } catch (error) {
       console.error("Error fetching daily report:", error);
@@ -36,7 +36,7 @@ function App() {
     }
   };
 
-  const handleGetWeeklyReport = async () => {
+  /* const handleGetWeeklyReport = async () => {
     try {
       const response = await axios.get("http://localhost:5000/generate_report/weekly");
       setReport(response.data);
@@ -45,6 +45,7 @@ function App() {
       alert("Failed to fetch weekly report.");
     }
   };
+  */
 
   return (
     <div className="container py-5">
