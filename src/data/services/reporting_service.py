@@ -3,6 +3,7 @@ from config import config, config_blob
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient
 import pandas as pd
+from flask import current_app
 #TURHAA KOODIA:
     # #Grouping by consultant_name and start_time and summing up the work_hours
     # df = pd.merge(df, (df.groupby(["consultant_name", "start_time"]).agg(daily_working_hours=('work_hours', 'sum')).reset_index())[['daily_working_hours', 'consultant_name', "start_time"]], on=["consultant_name", "start_time"], how="left")
@@ -98,15 +99,16 @@ def create_text_file(df: pd.DataFrame):
     return text_file_data
 
 def upload_to_blob(data: pd.DataFrame):
-    config = config_blob()
-    name = f"reports/weekly_report_{datetime.now().strftime('%Y-%m-%d')}.txt"
-    blob_service_client = BlobServiceClient.from_connection_string(config['connection_string'])
-    blob_client = blob_service_client.get_blob_client(config["container_name"], blob=name)
+    with current_app.app_context():
+        config = config_blob()
+        name = f"reports/weekly_report_{datetime.now().strftime('%Y-%m-%d')}.txt"
+        blob_service_client = BlobServiceClient.from_connection_string(config['connection_string'])
+        blob_client = blob_service_client.get_blob_client(config["container_name"], blob=name)
 
-    text_file_data = create_text_file(data)
+        text_file_data = create_text_file(data)
 
-    print(text_file_data)
-    blob_client.upload_blob(text_file_data, overwrite=True)
+        print(text_file_data)
+        blob_client.upload_blob(text_file_data, overwrite=True)
 
 if __name__ == '__main__':
     # upload_to_blob()
