@@ -48,29 +48,36 @@ def manipulate_data(df: pd.DataFrame):
     df["start_time"] = pd.to_datetime(df["start_time"]).dt.strftime('%Y-%m-%d')
     #Dropping columns end_time and lunch_break, because they are not needed anymore
     df.drop(columns=["end_time", "lunch_break"], inplace=True)
+    #Calculating the average of daily_working_hours per consultant
+    df_average = df.groupby(["consultant_name", "start_time"]).agg(daily_working_hours=('work_hours', 'sum')).reset_index().groupby(["consultant_name"]).agg(weekly_average=("daily_working_hours", "mean")).reset_index()
+    #merge and delete the df_average
+    df = pd.merge(df, df_average, on=["consultant_name"], how="left")
+    del df_average
     return df
 
 def create_text_file(df: pd.DataFrame):
     text_file_data = f"Weekly Summary Report\n{'-'*50}\n\n"
     consult_text = "Consults:\n\n"
-    customer_text = f"\n\n{'-'*50}\n\nCustomers:\n\n"
+    customer_text = f"{'-'*50}\n\nCustomers:\n\n"
     consult_names = []
     customer_names = []
-
+    
     for index, row in df.iterrows():
         if row["consultant_name"] not in consult_names:
-            # print(row["consultant_name"])
-            # print(df.loc[df['consultant_name'] == row['consultant_name'], 'work_hours'].sum())
+            #Creating a list of customers for each customer per consultant
             customer_list_per_consult = []
+            #appending the consultant_name to the list so it won't be added again
             consult_names.append(row["consultant_name"])
             consult_text += f"{row['consultant_name']:}\n"
             temp_timedelta = df.loc[df['consultant_name'] == row['consultant_name'], 'work_hours'].sum()
-            consult_text += f"\tTotal weekly work: {f'{(temp_timedelta.seconds // 3600)}:{(temp_timedelta.seconds % 3600 // 60)}'}\n"
+            consult_text += f"\tTotal weekly work: {f'{(int(temp_timedelta.total_seconds() // 3600)):02}:{(int(temp_timedelta.total_seconds() % 3600 // 60)):02}'}\n"
+            temp_timedelta = row['weekly_average']
+            consult_text += f"\tAverage daily work: {f'{(int(temp_timedelta.total_seconds() // 3600)):02}:{(int(temp_timedelta.total_seconds() % 3600 // 60)):02}'}\n"
             for i, r in df.iterrows():
                 if row["consultant_name"] == r["consultant_name"] and r["customer_name"] not in customer_list_per_consult:
                     customer_list_per_consult.append(r["customer_name"])
-                    temp_timedelta = df.loc[df['customer_name'] == r['customer_name'], 'work_hours'].sum()
-                    consult_text += f"\tWork for customer {r['customer_name']}: {f'{(temp_timedelta.seconds // 3600)}:{(temp_timedelta.seconds % 3600 // 60)}'}\n"
+                    temp_timedelta = df.loc[(df['customer_name'] == r['customer_name']) & (df["consultant_name"] == r["consultant_name"]), 'work_hours'].sum()
+                    consult_text += f"\tWork for customer {r['customer_name']}: {f'{(int(temp_timedelta.total_seconds() // 3600)):02}:{(int(temp_timedelta.total_seconds() % 3600 // 60)):02}'}\n"
             consult_text += "\n"
 
         if row["customer_name"] not in customer_names:
@@ -78,12 +85,12 @@ def create_text_file(df: pd.DataFrame):
             customer_names.append(row["customer_name"])
             customer_text += f"{row['customer_name']:}\n"
             temp_timedelta = df.loc[df['customer_name'] == row['customer_name'], 'work_hours'].sum()
-            customer_text += f"\tTotal weekly work: {f'{(temp_timedelta.seconds // 3600)}:{(temp_timedelta.seconds % 3600 // 60)}'}\n"
+            customer_text += f"\tTotal weekly work: {f'{(int(temp_timedelta.total_seconds() // 3600)):02}:{(int(temp_timedelta.total_seconds() % 3600 // 60)):02}'}\n"
             for i, r in df.iterrows():
                 if row["customer_name"] == r["customer_name"] and r["consultant_name"] not in consult_list_per_customer:
                     consult_list_per_customer.append(r["consultant_name"])
-                    temp_timedelta = df.loc[df['consultant_name'] == r['consultant_name'], 'work_hours'].sum()
-                    customer_text += f"\tWork by consult {r['consultant_name']}: {f'{(temp_timedelta.seconds // 3600)}:{(temp_timedelta.seconds % 3600 // 60)}'}\n"
+                    temp_timedelta = df.loc[(df['customer_name'] == r['customer_name']) & (df["consultant_name"] == r["consultant_name"]), 'work_hours'].sum()
+                    customer_text += f"\tWork by consult {r['consultant_name']}: {f'{(int(temp_timedelta.total_seconds() // 3600)):02}:{(int(temp_timedelta.total_seconds() % 3600 // 60)):02}'}\n"
             customer_text += "\n"
         
         
@@ -92,14 +99,14 @@ def create_text_file(df: pd.DataFrame):
 
 def upload_to_blob(data: pd.DataFrame):
     config = config_blob()
-    name = f"daily_report_{datetime.now().strftime('%Y-%m-%d')}.csv"
+    name = f"reports/weekly_report_{datetime.now().strftime('%Y-%m-%d')}.txt"
     blob_service_client = BlobServiceClient.from_connection_string(config['connection_string'])
     blob_client = blob_service_client.get_blob_client(config["container_name"], blob=name)
 
     text_file_data = create_text_file(data)
 
     print(text_file_data)
-    # blob_client.upload_blob(data, overwrite=True)
+    blob_client.upload_blob(text_file_data, overwrite=True)
 
 if __name__ == '__main__':
     # upload_to_blob()
