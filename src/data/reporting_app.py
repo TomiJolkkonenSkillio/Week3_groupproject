@@ -33,7 +33,7 @@ def start_scheduler():
     with app.app_context():
         scheduler = BackgroundScheduler()
 
-        scheduler.add_job(generate_report_auto, 'interval', minutes=1, start_date='2025-01-30 00:00:00')
+        scheduler.add_job(generate_report_auto, 'interval', minutes=5, start_date='2025-01-30 00:00:00')
 
         scheduler.start()
 
