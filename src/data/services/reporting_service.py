@@ -107,8 +107,9 @@ def upload_to_blob(data: pd.DataFrame):
 
         text_file_data = create_text_file(data)
 
-        print(text_file_data)
         blob_client.upload_blob(text_file_data, overwrite=True)
+        print(f"File uploaded to blob at {datetime.now()}")
+
 
 if __name__ == '__main__':
     # upload_to_blob()
