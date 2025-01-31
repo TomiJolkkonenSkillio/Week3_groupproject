@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 reporting_api = Blueprint('reporting_api', __name__)
 
 # Create a function for generating a weekly report manually
-@reporting_api.route('/', methods=['GET'])
+@reporting_api.route('/', methods=['POST'])
 def generate_report():
     try:
         df = pd.DataFrame(get_weekly_working_hours())
