@@ -3,7 +3,9 @@ from config import config, config_blob
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient
 import pandas as pd
-from flask import current_app
+from flask import current_app, send_file, Response
+import io
+import mimetypes
 #TURHAA KOODIA:
     # #Grouping by consultant_name and start_time and summing up the work_hours
     # df = pd.merge(df, (df.groupby(["consultant_name", "start_time"]).agg(daily_working_hours=('work_hours', 'sum')).reset_index())[['daily_working_hours', 'consultant_name', "start_time"]], on=["consultant_name", "start_time"], how="left")
@@ -109,6 +111,34 @@ def upload_to_blob(data: pd.DataFrame):
 
         blob_client.upload_blob(text_file_data, overwrite=True)
         print(f"File uploaded to blob at {datetime.now()}")
+
+def download_file(data: pd.DataFrame):
+    with current_app.app_context():
+        config = config_blob()
+        blob_service_client = BlobServiceClient.from_connection_string(config['connection_string'])
+        container_client = blob_service_client.get_container_client(config["container_name"])
+        filename = f"weekly_report_{datetime.now().strftime('%Y-%m-%d')}.txt"
+        blob_client = blob_service_client.get_blob_client(config["container_name"], blob=("reports/"+filename))
+        print(filename)
+        if not blob_client.exists():
+            print("File not found in Azure Blob Storage")
+            return "File not found in Azure Blob Storage", 404
+
+        blob_data = blob_client.download_blob().readall()
+
+        mime_type, _ = mimetypes.guess_type(filename)
+        if mime_type is None:
+            mime_type = "application/octet-stream"
+        print(blob_data)
+        file_stream = io.BytesIO(blob_data)
+
+        return send_file(
+            file_stream,
+            as_attachment=True,  
+            download_name=filename,
+            mimetype=mime_type
+        )
+
 
 
 if __name__ == '__main__':
