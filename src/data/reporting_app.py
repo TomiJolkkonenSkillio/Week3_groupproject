@@ -5,13 +5,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Blueprint, jsonify, request, current_app
 from services.reporting_service import get_weekly_working_hours, upload_to_blob, manipulate_data
 import pandas as pd
+from threading import Thread
 
 #Initialize the Flask app
 app = Flask(__name__)
 CORS(app)
 
 # Create a Blueprint for reporting related routes
-reporting_api = Blueprint('reporting_api', __name__)
+# reporting_api = Blueprint('reporting_api', __name__)
 # Register blueprints
 app.register_blueprint(reporting_api, url_prefix="/generate_report")
 
@@ -28,12 +29,17 @@ def generate_report_auto():
             return jsonify({'error': str(e)}), 500
         
 #Cteate a scheduler for generating a weekly report automatically
-with app.app_context():
-    scheduler = BackgroundScheduler()
+def start_scheduler():
+    with app.app_context():
+        scheduler = BackgroundScheduler()
 
-    scheduler.add_job(generate_report_auto, 'interval', minutes=1, start_date='2025-01-30 00:00:00')
+        scheduler.add_job(generate_report_auto, 'interval', minutes=5, start_date='2025-01-30 00:00:00')
 
-    scheduler.start()
+        scheduler.start()
+
+scheduler_thread = Thread(target=start_scheduler)
+scheduler_thread.daemon = True
+scheduler_thread.start()
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(host="0.0.0.0", port=5000, threaded=True)
